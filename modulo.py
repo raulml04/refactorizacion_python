@@ -1,27 +1,44 @@
 def procesar_registros(registros):
     resultados = []
     for registro in registros:
-        # Comprobar si es una venta válida
+        # Validación directa (aún sin refactorizar)
         if registro['tipo'] == 'venta' and registro['monto'] > 0 and registro['estado'] == 'completado':
-            # Aplicar descuento si el monto es alto o es cliente VIP
-            if registro['monto'] > 1000 or (registro['cliente_tipo'] == 'VIP' and registro['monto'] > 500):
-                total = registro['monto'] * 0.9
-            else:
-                total = registro['monto']
-            
-            # Formatear el resultado
-            mensaje = "Cliente: " + registro['nombre'] + " - Total: " + str(total)
+
+            # Cálculo separado en función
+            total = calcular_total_venta(registro)
+
+            # Formateo centralizado
+            mensaje = formatear_resultado(registro['nombre'], total, "Total")
             resultados.append(mensaje)
-            
-            # Imprimir log de auditoría
+
+            # Log duplicado (pendiente de refactor)
             print("Procesando registro de: " + registro['nombre'])
 
         elif registro['tipo'] == 'devolucion' and registro['monto'] > 0:
-            # Lógica de devoluciones
-            total = registro['monto'] * -1
-            mensaje = "Cliente: " + registro['nombre'] + " - Retorno: " + str(total)
+
+            # Cálculo de devolución separado
+            total = calcular_total_devolucion(registro)
+
+            mensaje = formatear_resultado(registro['nombre'], total, "Retorno")
             resultados.append(mensaje)
 
             print("Procesando registro de: " + registro['nombre'])
 
     return resultados
+
+
+def calcular_total_venta(registro):
+    # Aplica descuento según reglas de negocio
+    if registro['monto'] > 1000 or (registro['cliente_tipo'] == 'VIP' and registro['monto'] > 500):
+        return registro['monto'] * 0.9
+    return registro['monto']
+
+
+def calcular_total_devolucion(registro):
+    # Convierte el monto en negativo para representar devolución
+    return registro['monto'] * -1
+
+
+def formatear_resultado(nombre, total, tipo):
+    # Genera el mensaje de salida
+    return f"Cliente: {nombre} - {tipo}: {total}"
