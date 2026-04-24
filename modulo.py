@@ -1,24 +1,19 @@
 def procesar_registros(registros):
     resultados = []
     for registro in registros:
-        # Validación directa (aún sin refactorizar)
-        if registro['tipo'] == 'venta' and registro['monto'] > 0 and registro['estado'] == 'completado':
+        # Validación mediante funciones (mejora legibilidad)
+        if es_venta_valida(registro):
 
-            # Cálculo separado en función
             total = calcular_total_venta(registro)
-
-            # Formateo centralizado
             mensaje = formatear_resultado(registro['nombre'], total, "Total")
             resultados.append(mensaje)
 
-            # Log duplicado (pendiente de refactor)
+            # Log aún duplicado
             print("Procesando registro de: " + registro['nombre'])
 
-        elif registro['tipo'] == 'devolucion' and registro['monto'] > 0:
+        elif es_devolucion_valida(registro):
 
-            # Cálculo de devolución separado
             total = calcular_total_devolucion(registro)
-
             mensaje = formatear_resultado(registro['nombre'], total, "Retorno")
             resultados.append(mensaje)
 
@@ -27,18 +22,26 @@ def procesar_registros(registros):
     return resultados
 
 
+def es_venta_valida(registro):
+    # Comprueba si el registro cumple condiciones de venta
+    return registro['tipo'] == 'venta' and registro['monto'] > 0 and registro['estado'] == 'completado'
+
+
+def es_devolucion_valida(registro):
+    # Comprueba si el registro es una devolución válida
+    return registro['tipo'] == 'devolucion' and registro['monto'] > 0
+
+
 def calcular_total_venta(registro):
-    # Aplica descuento según reglas de negocio
+    # Aplica descuento si corresponde
     if registro['monto'] > 1000 or (registro['cliente_tipo'] == 'VIP' and registro['monto'] > 500):
         return registro['monto'] * 0.9
     return registro['monto']
 
 
 def calcular_total_devolucion(registro):
-    # Convierte el monto en negativo para representar devolución
     return registro['monto'] * -1
 
 
 def formatear_resultado(nombre, total, tipo):
-    # Genera el mensaje de salida
     return f"Cliente: {nombre} - {tipo}: {total}"
